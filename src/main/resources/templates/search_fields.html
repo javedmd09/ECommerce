@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <title>Data Compare Modal</title>
+</head>
+<body>
+<div th:fragment="searchCriteriaFragment (searchCriteriaList, baseUrl)">
+
+
+    <div class="filter-products">
+
+        <form class="" th:id="searchForm" role="form" method="GET">
+            <div th:each=" searchCriteria : ${searchCriteriaList}"
+                 th:if="${#strings.equals(searchCriteria.fieldType, 'HIDDEN')}">
+
+                <input
+                        type="hidden"
+                        th:name="${searchCriteria.key}"
+                        th:id="${searchCriteria.key}"
+                        th:value="${searchCriteria.value}"
+                        th:fieldType="${ searchCriteria.fieldType }"/>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3" th:each=" searchCriteria : ${searchCriteriaList}"
+                     th:if="${#strings.equals(searchCriteria.fieldType, 'HIDDEN') == false}">
+                    <div
+
+                            th:switch="${searchCriteria.fieldType}">
+
+                        <label th:text="${searchCriteria.viewKey}"></label>
+
+                        <div class="input-group">
+                            <select th:if="${#strings.toString(searchCriteria.fieldType) == 'ENUM' or #strings.toString(searchCriteria.fieldType) == 'SELECT2_SEARCH'}"
+                                    th:name="${searchCriteria.key}" class="form-control" th:id="${searchCriteria.key}">
+
+                                <option value=""> --Select--</option>
+                                <option th:each="option: ${searchCriteria.options}"
+                                        th:value="${option.key}"
+                                        th:text="${option.value}"
+                                        th:selected="${#strings.toString(searchCriteria.value) == #strings.toString(option.key)}"></option>
+
+                                <!-- Default selection for select2 search dropdown -->
+                                <!-- If viewValue is not initiated initiated in url then replace by normal value from url-->
+                                <option th:if="${#strings.isEmpty(searchCriteria.options)}"
+                                        th:value="${searchCriteria.value}" selected
+                                        th:text="${ #strings.isEmpty(searchCriteria.viewValue) == false ?  searchCriteria.viewValue : searchCriteria.value }"></option>
+                            </select>
+
+                            <input th:if="${#strings.toString(searchCriteria.fieldType) == 'TEXT'
+                                                    OR #strings.toString(searchCriteria.fieldType) == 'DATE_RANGE'
+                                                    OR #strings.toString(searchCriteria.fieldType) == 'DATE'
+                                                    OR #strings.toString(searchCriteria.fieldType) == 'NUMERIC'
+                                                    OR #strings.toString(searchCriteria.fieldType) == 'DATE_TIME'}"
+                                   type="text" th:name="${searchCriteria.key}" th:id="${searchCriteria.key}"
+                                   autocomplete="off"
+                                   th:value="${searchCriteria.value}" th:class="form-control"
+                                   th:fieldType="${ searchCriteria.fieldType }"/>
+
+                            <input th:if="${#strings.isEmpty(searchCriteria.viewValue) == false}" type="hidden"
+                                   th:name="${searchCriteria.key} + 'ViewValue'"
+                                   th:id="${searchCriteria.key} + 'ViewValue'"
+                                   th:value="${searchCriteria.viewValue}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="rows mb-3 clearfix">
+                <div class="offset-md-9">
+                    <div class="float-right">
+                        <a th:href="${baseUrl}" class="btn btn-info white">
+                            <i class="fas fa-sync-alt"></i> Reset</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-check"></i> Search
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+</body>
+</html>
