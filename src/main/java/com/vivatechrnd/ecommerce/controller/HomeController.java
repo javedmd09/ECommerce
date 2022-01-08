@@ -39,22 +39,31 @@ public class HomeController {
     @RequestMapping(value = "/all-products", method = RequestMethod.GET)
     public String listAllProduct(@RequestParam(name = "productId", required = false) String productId,
                                  @RequestParam(name = "productName", required = false) String productName,
+                                 @RequestParam(name = "priceMin", required = false) Double priceMin,
+                                 @RequestParam(name = "priceMax", required = false) Double priceMax,
                                  Model model, HttpServletRequest request){
         String productUrl = "http://localhost:8087/products";
 
-        ProductDto productDto = new ProductDto();
-        productDto.setProductId(productId);
-        productDto.setDescription(productName);
+        ProductDto productDto = ProductDto.builder()
+                .productId(productId)
+                .description(productName)
+                .priceMin(priceMin)
+                .priceMax(priceMax)
+                .build();
 
         String queryString = request.getQueryString();
         HashMap<String, String> parameterKeyValuePair = getUrlParameterToKeyValuePair(queryString);
-        List<SearchCriteria> searchCriteriaList = getActiveOutletSearchCriteria(parameterKeyValuePair);
+        List<SearchCriteria> searchCriteriaList = getActiveProductSearchCriteria(parameterKeyValuePair);
         model.addAttribute("searchCriteriaList", searchCriteriaList);
 
-        ProductSummary[] objects = restTemplate.postForObject(productUrl,productDto,ProductSummary[].class);
+        try {
+            ProductSummary[] objects = restTemplate.postForObject(productUrl,productDto,ProductSummary[].class);
 
-        List<Object> allProducts = Arrays.asList(objects);
-        model.addAttribute("products", allProducts);
+            List<Object> allProducts = Arrays.asList(objects);
+            model.addAttribute("products", allProducts);
+        } catch (Exception ex){
+            model.addAttribute("message","Please enter Maximum value also");
+        }
         return "index";
     }
 
@@ -90,7 +99,7 @@ public class HomeController {
         return hashMap;
     }
 
-    private List<SearchCriteria> getActiveOutletSearchCriteria(HashMap<String, String> prevSearchedValues) {
+    private List<SearchCriteria> getActiveProductSearchCriteria(HashMap<String, String> prevSearchedValues) {
 
         List<SearchCriteria> searchCriteriaList = new ArrayList<>();
 
@@ -104,6 +113,12 @@ public class HomeController {
                 "productName", "Product Name", SearchCriteriaFieldType.SELECT2_SEARCH, ":", prevSearchedValues.get("productName")
         );
         searchCriteriaList.add(searchCriteria2);
+
+        SearchCriteria searchCriteria3 = new SearchCriteria("priceMin", "Minimum Price", SearchCriteriaFieldType.TEXT, ":", prevSearchedValues.get("priceMin"));
+        searchCriteriaList.add(searchCriteria3);
+
+        SearchCriteria searchCriteria4 = new SearchCriteria("priceMax", "Maximum Price", SearchCriteriaFieldType.TEXT, ":", prevSearchedValues.get("priceMax"));
+        searchCriteriaList.add(searchCriteria4);
 
         return searchCriteriaList;
     }
