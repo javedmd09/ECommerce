@@ -7,8 +7,10 @@ import com.vivatechrnd.ecommerce.api.AddProductCommand;
 import com.vivatechrnd.ecommerce.api.UpdateProductCommand;
 import com.vivatechrnd.ecommerce.read_modal.ProductSummary;
 import org.axonframework.commandhandling.gateway.CommandGateway;
+import org.axonframework.common.ObjectUtils;
 import org.axonframework.queryhandling.QueryGateway;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("")
@@ -66,15 +69,26 @@ public class ProductController {
     @PostMapping("/products")
     public List<ProductSummary> getProducts(@RequestBody ProductDto summary){
 
-        if (!StringUtils.isEmpty(summary.getProductId())){
-            return repository.findAllById(Collections.singleton(summary.getProductId()));
-        }else if (summary.getDescription() != null){
-            return repository.findAllByDescriptionContaining(summary.getDescription());
-        }else {
-            return repository.findAll();
-        }
+        return getFilteredData(summary);
 
     }
+
+    public List<ProductSummary> getFilteredData(ProductDto dto) {
+        List<ProductSummary> summaries = repository.findAll();
+        List<ProductSummary> result = summaries;
+        if (!StringUtils.isEmpty(dto.getProductId())) {
+            result = summaries.stream().filter(data -> data.getProductId().equals(dto.getProductId()))
+                    .collect(Collectors.toList());
+        } else if (!StringUtils.isEmpty(dto.getDescription())) {
+            result = summaries.stream().filter(data -> data.getDescription().equalsIgnoreCase(dto.getDescription()))
+                    .collect(Collectors.toList());
+        } else if (dto.getPriceMin() != null && dto.getPriceMax() != null) {
+            result = summaries.stream().filter(x -> x.getPrice() >= dto.getPriceMin() && x.getPrice() <= dto.getPriceMax())
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
+
     @GetMapping("/product-id/{productId}")
     public Optional<ProductSummary> getProduct(@PathVariable(value = "productId") String productId){
         return repository.findById(productId);
