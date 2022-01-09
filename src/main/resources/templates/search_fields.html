@@ -61,7 +61,7 @@
                                    type="text" th:name="${searchCriteria.key}" th:id="${searchCriteria.key}"
                                    autocomplete="off"
                                    th:value="${searchCriteria.value}" th:class="form-control"
-                                   th:fieldType="${ searchCriteria.fieldType }"/>
+                                   th:fieldType="${searchCriteria.fieldType}"/>
 
                             <input th:if="${#strings.isEmpty(searchCriteria.viewValue) == false}" type="hidden"
                                    th:name="${searchCriteria.key} + 'ViewValue'"

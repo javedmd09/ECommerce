@@ -1,5 +1,6 @@
 package com.vivatechrnd.ecommerce.query;
 
+import com.vivatechrnd.ecommerce.Repository.OrderSummaryRepository;
 import com.vivatechrnd.ecommerce.api.CreateOrderEvent;
 import com.vivatechrnd.ecommerce.api.UpdateProductStockCommand;
 import com.vivatechrnd.ecommerce.api.UpdateProductStockEvent;
@@ -7,6 +8,7 @@ import com.vivatechrnd.ecommerce.read_modal.OrderSummary;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.eventhandling.EventHandler;
 import org.axonframework.queryhandling.QueryHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,6 +16,7 @@ import java.util.List;
 @Component
 public class OrderProjector {
 
+    @Autowired
     private final OrderSummaryRepository repository;
     private final CommandGateway commandGateway;
 
@@ -34,8 +37,4 @@ public class OrderProjector {
 
     }
 
-    @QueryHandler
-    public List<OrderSummary> handle(GetOrderQuery query){
-        return repository.findAll();
-    }
 }

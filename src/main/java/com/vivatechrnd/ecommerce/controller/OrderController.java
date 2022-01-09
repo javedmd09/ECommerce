@@ -1,5 +1,6 @@
 package com.vivatechrnd.ecommerce.controller;
 
+import com.vivatechrnd.ecommerce.Repository.OrderSummaryRepository;
 import com.vivatechrnd.ecommerce.api.CreateOrderCommand;
 import com.vivatechrnd.ecommerce.api.UpdateProductStockCommand;
 import com.vivatechrnd.ecommerce.query.GetOrderQuery;
@@ -8,6 +9,7 @@ import com.vivatechrnd.ecommerce.read_modal.ProductSummary;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.messaging.responsetypes.ResponseTypes;
 import org.axonframework.queryhandling.QueryGateway;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +21,9 @@ import java.util.concurrent.CompletableFuture;
 
 @RestController
 public class OrderController {
+
+    @Autowired
+    private OrderSummaryRepository repository;
 
     private CommandGateway commandGateway;
     private QueryGateway queryGateway;
@@ -47,9 +52,8 @@ public class OrderController {
         UpdateProductStockCommand cmd = new UpdateProductStockCommand(summary.getProductId(), summary.getStock());
         commandGateway.send(cmd);
     }
-    @GetMapping("/all-orders")
-    public CompletableFuture<List<OrderSummary>> getAllOrder(){
-        return queryGateway.query(new GetOrderQuery(),
-                ResponseTypes.multipleInstancesOf(OrderSummary.class));
+    @PostMapping("/all-orders")
+    public List<OrderSummary> getAllOrder(){
+        return repository.findAll();
     }
 }

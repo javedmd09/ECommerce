@@ -15,6 +15,4 @@ enum class SearchCriteriaFieldType {
 }
 
 
-interface OrderSummaryRepository:JpaRepository<OrderSummary, UUID>
-
 
